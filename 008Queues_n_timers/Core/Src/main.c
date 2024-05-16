@@ -55,6 +55,9 @@ TaskHandle_t handle_rtc_task;
 QueueHandle_t q_data;
 QueueHandle_t q_print;
 
+TimerHandle_t handle_led_timer[4];
+TimerHandle_t rtc_timer;
+
 volatile uint8_t user_data;
 state_t curr_state = sMainMenu;
 
@@ -65,7 +68,11 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
 static void MX_USART2_UART_Init(void);
+
 /* USER CODE BEGIN PFP */
+void led_effect_callback(TimerHandle_t xTimer);
+void rtc_report_callback(TimerHandle_t xTimer);
+
 
 /* USER CODE END PFP */
 
@@ -106,6 +113,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  //SEGGER_SYSVIEW_Conf();
+
   status = xTaskCreate(menu_task, "menu_task", 250, NULL, 2, &handle_menu_task);
 
   configASSERT(status == pdPASS);
@@ -133,6 +142,13 @@ int main(void)
   q_print = xQueueCreate(10, sizeof(size_t));
 
   configASSERT(q_print != NULL);
+
+  //Create software timers for LED effects
+  for (int i = 0; i < 4; i++) {
+	  handle_led_timer[i] = xTimerCreate("led_timer", pdMS_TO_TICKS(500), pdTRUE, (void*)(i + 1), led_effect_callback);
+  }
+
+  rtc_timer = xTimerCreate ("rtc_report_timer", pdMS_TO_TICKS(1000), pdTRUE, NULL, rtc_report_callback);
 
   HAL_UART_Receive_IT(&huart2, (uint8_t*)&user_data, 1);
 
@@ -409,6 +425,35 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void rtc_report_callback(TimerHandle_t xTimer)
+{
+	show_time_date_itm();
+
+}
+
+void led_effect_callback(TimerHandle_t xTimer)
+{
+	uint32_t id;
+
+	id = (uint32_t) pvTimerGetTimerID(xTimer);
+
+	switch (id)
+	{
+		case 1:
+			LED_effect1();
+			break;
+		case 2:
+			LED_effect2();
+			break;
+		case 3:
+			LED_effect3();
+			break;
+		case 4:
+			LED_effect4();
+			break;
+	}
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	uint8_t dummy;
@@ -440,6 +485,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	/*Enable UART data byte reception again in IT mode */
 	HAL_UART_Receive_IT(&huart2, (uint8_t*)&user_data, 1);
 }
+
 
 /* USER CODE END 4 */
 

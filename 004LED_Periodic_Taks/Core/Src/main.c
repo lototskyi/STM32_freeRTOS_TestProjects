@@ -103,7 +103,7 @@ int main(void)
 
   DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
-  SEGGER_UART_init(250000);
+//  SEGGER_UART_init(250000);
 
   SEGGER_SYSVIEW_Conf();
 
