@@ -454,7 +454,6 @@ void EXTI15_10_IRQHandlerCallback(void)
 
 	/* Clear the software interrupt bit using the interrupt controllers  */
 
-
 	/* Giving the semaphore may have unblocked a task - if it did and the
 	unblocked task has a priority equal to or above the currently executing
 	task then xHigherPriorityTaskWoken will have been set to pdTRUE and
