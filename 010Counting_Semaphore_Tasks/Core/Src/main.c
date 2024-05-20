@@ -465,7 +465,7 @@ void EXTI15_10_IRQHandlerCallback(void)
 	FreeRTOS ports.  The portEND_SWITCHING_ISR() macro is provided as part of
 	the Cortex M3 port layer for this purpose.  taskYIELD() must never be called
 	from an ISR! */
-	//portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+	portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 	traceISR_EXIT();
 }
 
